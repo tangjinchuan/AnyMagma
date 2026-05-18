@@ -1,0 +1,13 @@
+# 忽略编译产物和临时文件
+*.o
+*.a
+*.so
+*.co
+*.gen
+*.pyc
+*.*~
+*~
+.directory
+
+# 你可以在这里添加其他需要忽略的目录或文件，例如：
+# testing/benchmark_results/
