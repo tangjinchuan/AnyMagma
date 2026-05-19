@@ -33,7 +33,7 @@
     // functions where Microsoft fails to provide C99 standard
     // (only with Microsoft, not with nvcc on Windows)
     // in both common_magma.h and testings.h
-    #ifndef __NVCC__
+    #if defined(_MSC_VER) && !defined(__NVCC__)
     
         #include <float.h>
         #define copysign(x,y) _copysign(x,y)
