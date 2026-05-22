@@ -42,7 +42,7 @@ void test_num_gpus()
     printf( "$MAGMA_NUM_GPUS     ngpu     expect\n" );
     printf( "%%==================================\n" );
     
-#ifndef _MSC_VER // not Windows
+#if !defined(_WIN32) // not Windows
     
     unsetenv("MAGMA_NUM_GPUS");
     ngpu = magma_num_gpus();
@@ -146,7 +146,7 @@ void test_num_threads()
     warn( p_nthread == p_nthread_orig );
     warn( l_nthread == l_nthread_orig );
     
-#ifndef _MSC_VER // not Windows
+#if !defined(_WIN32) // not Windows
     // test that parsing MAGMA_NUM_THREADS works
     
     // TODO need some way to get ncores. This is circular: assume with huge

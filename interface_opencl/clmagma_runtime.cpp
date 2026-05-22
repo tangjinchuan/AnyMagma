@@ -21,7 +21,7 @@ std::string read_file( const std::string& filename )
 {
     std::string contents;
     
-    FILE* file = fopen( filename.c_str(), "r" );
+    FILE* file = fopen( filename.c_str(), "rb" ); /* binary mode for 'CRLF' style */
     if ( file == NULL ) {
         fprintf( stderr, "Can't open file '%s': %s (%d) at %s:%d\n",
                  filename.c_str(), strerror(errno), errno, __func__, __LINE__ );
