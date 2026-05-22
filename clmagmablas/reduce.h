@@ -1,19 +1,16 @@
 #ifndef REDUCE_H
 #define REDUCE_H
-/*
-    -- clMAGMA (version 1.0) --
-       Univ. of Tennessee, Knoxville
-       Univ. of California, Berkeley
-       Univ. of Colorado, Denver
-       @date
-*/
+// Jinchuan Tang
+// 启用双精度浮点扩展（如果设备支持）
+#ifdef cl_khr_fp64
+    #pragma OPENCL EXTENSION cl_khr_fp64 : enable
+#elif defined(cl_amd_fp64)
+    #pragma OPENCL EXTENSION cl_amd_fp64 : enable
+#endif
 
 //==============================================================================
-// Does sum reduction of array x, leaving total in x[0].
-// Contents of x are destroyed in the process.
-// With k threads, can reduce array up to 2*k in size.
-// Assumes number of threads <= 1024
-void magma_ssum_reduce( int n, int i, __local float* x );  // prototype to suppress compiler warning
+// 单精度求和规约（始终可用）
+void magma_ssum_reduce( int n, int i, __local float* x );
 void magma_ssum_reduce( int n, int i, __local float* x )
 {
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -29,11 +26,11 @@ void magma_ssum_reduce( int n, int i, __local float* x )
     if ( n >    2 ) { if ( i <    2 && i +    2 < n ) { x[i] += x[i+   2]; }  barrier(CLK_LOCAL_MEM_FENCE); }
     if ( n >    1 ) { if ( i <    1 && i +    1 < n ) { x[i] += x[i+   1]; }  barrier(CLK_LOCAL_MEM_FENCE); }
 }
-// end ssum_reduce
-
 
 //==============================================================================
-void magma_dsum_reduce( int n, int i, __local double* x );  // prototype to suppress compiler warning
+// 双精度求和规约（仅在设备支持双精度时编译）
+#if defined(cl_khr_fp64) || defined(cl_amd_fp64)
+void magma_dsum_reduce( int n, int i, __local double* x );
 void magma_dsum_reduce( int n, int i, __local double* x )
 {
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -49,11 +46,11 @@ void magma_dsum_reduce( int n, int i, __local double* x )
     if ( n >    2 ) { if ( i <    2 && i +    2 < n ) { x[i] += x[i+   2]; }  barrier(CLK_LOCAL_MEM_FENCE); }
     if ( n >    1 ) { if ( i <    1 && i +    1 < n ) { x[i] += x[i+   1]; }  barrier(CLK_LOCAL_MEM_FENCE); }
 }
-// end dsum_reduce
-
+#endif
 
 //==============================================================================
-void magma_csum_reduce( int n, int i, __local magmaFloatComplex* x );  // prototype to suppress compiler warning
+// 单精度复数求和规约（始终可用）
+void magma_csum_reduce( int n, int i, __local magmaFloatComplex* x );
 void magma_csum_reduce( int n, int i, __local magmaFloatComplex* x )
 {
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -69,11 +66,11 @@ void magma_csum_reduce( int n, int i, __local magmaFloatComplex* x )
     if ( n >    2 ) { if ( i <    2 && i +    2 < n ) { x[i] = MAGMA_C_ADD( x[i], x[i+   2] ); }  barrier(CLK_LOCAL_MEM_FENCE); }
     if ( n >    1 ) { if ( i <    1 && i +    1 < n ) { x[i] = MAGMA_C_ADD( x[i], x[i+   1] ); }  barrier(CLK_LOCAL_MEM_FENCE); }
 }
-// end csum_reduce
-
 
 //==============================================================================
-void magma_zsum_reduce( int n, int i, __local magmaDoubleComplex* x );  // prototype to suppress compiler warning
+// 双精度复数求和规约（仅在支持双精度时可用）
+#if defined(cl_khr_fp64) || defined(cl_amd_fp64)
+void magma_zsum_reduce( int n, int i, __local magmaDoubleComplex* x );
 void magma_zsum_reduce( int n, int i, __local magmaDoubleComplex* x )
 {
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -89,15 +86,11 @@ void magma_zsum_reduce( int n, int i, __local magmaDoubleComplex* x )
     if ( n >    2 ) { if ( i <    2 && i +    2 < n ) { x[i] = MAGMA_Z_ADD( x[i], x[i+   2] ); }  barrier(CLK_LOCAL_MEM_FENCE); }
     if ( n >    1 ) { if ( i <    1 && i +    1 < n ) { x[i] = MAGMA_Z_ADD( x[i], x[i+   1] ); }  barrier(CLK_LOCAL_MEM_FENCE); }
 }
-// end zsum_reduce
-
+#endif
 
 //==============================================================================
-// Does sum reduction of array x, leaving total in x[0].
-// Contents of x are destroyed in the process.
-// With k threads, can reduce array up to 2*k in size.
-// Assumes number of threads <= 1024
-void magma_smax_reduce( int n, int i, __local float* x );  // prototype to suppress compiler warning
+// 单精度最大值规约（始终可用）
+void magma_smax_reduce( int n, int i, __local float* x );
 void magma_smax_reduce( int n, int i, __local float* x )
 {
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -113,11 +106,11 @@ void magma_smax_reduce( int n, int i, __local float* x )
     if ( n >    2 ) { if ( i <    2 && i +    2 < n ) { x[i] = max( x[i], x[i+   2] ); }  barrier(CLK_LOCAL_MEM_FENCE); }
     if ( n >    1 ) { if ( i <    1 && i +    1 < n ) { x[i] = max( x[i], x[i+   1] ); }  barrier(CLK_LOCAL_MEM_FENCE); }
 }
-// end smax_reduce
-
 
 //==============================================================================
-void magma_dmax_reduce( int n, int i, __local double* x );  // prototype to suppress compiler warning
+// 双精度最大值规约（仅在支持双精度时可用）
+#if defined(cl_khr_fp64) || defined(cl_amd_fp64)
+void magma_dmax_reduce( int n, int i, __local double* x );
 void magma_dmax_reduce( int n, int i, __local double* x )
 {
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -133,6 +126,6 @@ void magma_dmax_reduce( int n, int i, __local double* x )
     if ( n >    2 ) { if ( i <    2 && i +    2 < n ) { x[i] = max( x[i], x[i+   2] ); }  barrier(CLK_LOCAL_MEM_FENCE); }
     if ( n >    1 ) { if ( i <    1 && i +    1 < n ) { x[i] = max( x[i], x[i+   1] ); }  barrier(CLK_LOCAL_MEM_FENCE); }
 }
-// end dmax_reduce
+#endif
 
-#endif        //  #ifndef REDUCE_H
+#endif // REDUCE_H

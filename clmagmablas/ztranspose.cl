@@ -16,6 +16,9 @@
 #include "ztranspose.h"
 
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
+
 // tile M-by-N matrix with ceil(M/NB) by ceil(N/NB) tiles sized NB-by-NB.
 // uses NX-by-NY threads, where NB/NX, NB/NY, NX/NY evenly.
 // subtile each NB-by-NB tile with (NB/NX) subtiles sized NX-by-NB
@@ -110,3 +113,5 @@ void ztranspose_kernel(
 
     ztranspose_device(m, n, A, lda, AT, ldat);
 }
+
+#endif

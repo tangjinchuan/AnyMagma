@@ -17,6 +17,9 @@
 #define A(i_, j_) (A[(i_) + (j_)*lda])
 #define W(i_, j_) (W[(i_) + (j_)*ldw])
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
+
 // each thread block does one NB x n block row of A.
 // each thread does one row, starting from left edge and moving right to diagonal.
 __kernel void
@@ -75,3 +78,4 @@ zlascl_2x2_upper(
                                                 W(ind,0) ));
     }
 }
+#endifs

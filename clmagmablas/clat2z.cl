@@ -13,6 +13,7 @@
 #include "kernels_header.h"
 #include "clat2z.h"
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
 
 /*
     Divides matrix into ceil( n/BLK_X ) x ceil( n/BLK_Y ) blocks.
@@ -101,3 +102,4 @@ void clat2z_upper(
         }
     }
 }
+#endif

@@ -13,6 +13,7 @@
 #include "kernels_header.h"
 #include "magma_dmax_nan.h"
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
 // ----------------------------------------
 /// Same as magma_max_reduce, but propogates nan values.
 ///
@@ -45,6 +46,7 @@ magma_dmax_nan_devfunc_n( int n, int i, __local double* x, unsigned long x_offse
 }
 // end max_nan_reduce
 
+#endif
 
 // ----------------------------------------
 /// max reduction, for arbitrary size vector. Leaves max(x) in x[0].

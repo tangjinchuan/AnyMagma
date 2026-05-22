@@ -16,6 +16,8 @@
 #include "ztranspose_inplace.h"
 
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
 ////////////////////////////////////////////////////////////////////////////////
 // grid is (n/nb) x ((n/nb)/2 + 1), where n/nb is odd.
 // lower indicates blocks in lower triangle of grid, including diagonal.
@@ -142,3 +144,5 @@ __kernel void ztranspose_inplace_even(
         }
     }
 }
+#endif  // double precision support
+

@@ -13,8 +13,9 @@
 #include "kernels_header.h"
 #include "zlag2c.h"
 
-#define PRECISION_z
+//#define PRECISION_z
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
 
 // TODO get rid of global variable!
 // TODO __kernel int flag = 0;
@@ -81,3 +82,4 @@ void zlag2c_kernel(
         }
     }
 }
+#endif

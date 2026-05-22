@@ -11,11 +11,15 @@
 #include "kernels_header.h"
 #include "reduce.h"
 
+
 //#define BLOCK_SIZE 768
 #define BLOCK_SIZE 256
 
 #define BLOCK_SIZEx  32
 #define BLOCK_SIZEy  8
+
+
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
 
 
 __kernel void magma_ztrmv_tkernel(__global magmaDoubleComplex *T, int T_offset, int ldt, __global magmaDoubleComplex *t, int t_offset, 
@@ -65,3 +69,4 @@ void magma_ztrmv_kernel2(__global magmaDoubleComplex *T, int T_offset, int ldt, 
             y[get_num_groups(0)] = tau[0];
     }
 }
+#endif

@@ -59,12 +59,18 @@ magmablas_zgemm_reduce(
 
 // iwocl 2013 benchmark
 void
-magmablas_empty(
+magmablas_empty_d(
     magmaDouble_ptr dA,
     magmaDouble_ptr dB,
     magmaDouble_ptr dC,
     magma_queue_t queue );
 
+void
+magmablas_empty_s(
+    magmaFloat_ptr dA,
+    magmaFloat_ptr dB,
+    magmaFloat_ptr dC,
+    magma_queue_t queue );
   /*
    * Transpose functions
    */

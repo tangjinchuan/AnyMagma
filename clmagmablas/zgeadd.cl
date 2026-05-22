@@ -13,6 +13,8 @@
 #include "kernels_header.h"
 #include "zgeadd.h"
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
 /*
     Divides matrix into ceil( m/BLK_X ) x ceil( n/BLK_Y ) blocks.
     Each block has BLK_X threads.
@@ -53,3 +55,4 @@ void zgeadd_full(
         }
     }
 }
+#endif

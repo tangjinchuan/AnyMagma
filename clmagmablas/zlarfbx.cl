@@ -15,6 +15,9 @@
 #define BLOCK_SIZE 256
 
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
+
 //==============================================================================
 __kernel void
 magma_zgemv_kernel1(int m, __global magmaDoubleComplex *V, int V_offset, int ldv,
@@ -108,3 +111,4 @@ magma_zgemv_kernel3(int m, __global magmaDoubleComplex *V, int V_offset, int ldv
     if (i == 0)
         dwork [get_group_id(0)] = -tau[0]*sum[0];
 }
+#endif

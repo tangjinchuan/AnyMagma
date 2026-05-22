@@ -16,6 +16,9 @@
 #include "zswap.h"
 
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
+
 /* Vector is divided into ceil(n/nb) blocks.
    Each thread swaps one element, x[tid] <---> y[tid].
 */
@@ -37,3 +40,4 @@ __kernel void zswap_kernel(
         *y  = tmp;
     }
 }
+#endif

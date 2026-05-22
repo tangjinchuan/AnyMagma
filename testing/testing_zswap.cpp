@@ -14,6 +14,8 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+#include <stdexcept>
+#include <limits>
 
 // includes, project
 #include "magma.h"
@@ -21,6 +23,8 @@
 #include "testings.h"
 
 #define PRECISION_z
+
+const real_Double_t MAGMA_D_NAN = std::numeric_limits<real_Double_t>::quiet_NaN();
 
 // if ( A == B ) return 0, else return 1
 static int diff_matrix( magma_int_t m, magma_int_t n, magmaDoubleComplex *A, magma_int_t lda, magmaDoubleComplex *B, magma_int_t ldb )

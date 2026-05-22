@@ -152,7 +152,9 @@ void clmagma_runtime::init( bool require_double )
     
     // TODO allocate m_devices. This next (commented out) line counts them.
     //err = clGetDeviceIDs( platform, CL_DEVICE_TYPE_GPU, 0, NULL, &m_num_devices );
-    err = clGetDeviceIDs( platform, CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR, MAX_DEVICES, m_devices, &m_num_devices );
+
+    // err = clGetDeviceIDs( platform, CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR, MAX_DEVICES, m_devices, &m_num_devices );
+    err = clGetDeviceIDs( platform, CL_DEVICE_TYPE_ALL, MAX_DEVICES, m_devices, &m_num_devices );
     check_error( err );
     
     // MAGMA requires double precision; skip devices that lack it.
@@ -219,7 +221,7 @@ void clmagma_runtime::init(std::vector<cl_device_id> devices, cl_context context
     m_bExternalContext = true;
 
     m_num_devices = devices.size();
-    for (int i=0;i<m_num_devices;i++)
+    for (unsigned int i=0;i<m_num_devices;i++)
     {
         m_devices[i] = devices[i];
     }

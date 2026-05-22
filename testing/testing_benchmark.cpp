@@ -75,7 +75,7 @@ int main( int argc, char** argv)
         int count = 10000;
         //int count = 400;
         int j;
-        magmablas_empty( d_A, d_B, d_C, queue );
+        magmablas_empty_d( d_A, d_B, d_C, queue );
         clFinish(queue);
         int kk;
         t_avg = 0, t_min = 50, t_max = 0;
@@ -84,7 +84,7 @@ int main( int argc, char** argv)
                 if(j==0){
                     t_start = magma_wtime();
                 }
-                magmablas_empty( d_A, d_B, d_C, queue );
+                magmablas_empty_d( d_A, d_B, d_C, queue );
                 clFlush(queue);
             }
             clFinish(queue);
@@ -104,7 +104,7 @@ int main( int argc, char** argv)
                 if(j==0){
                     t_start = magma_wtime();
                 }
-                magmablas_empty( d_A, d_B, d_C, queue );
+                magmablas_empty_d( d_A, d_B, d_C, queue );
                 clFinish(queue);
             }
             t_end = magma_wtime();

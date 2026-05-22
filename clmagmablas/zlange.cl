@@ -15,6 +15,8 @@
 #include "magma_dmax_nan.h"
 #include "reduce.h"
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
 /* Computes row sums dwork[i] = sum( abs( A(i,:) )), i=0:m-1, for || A ||_inf,
  * where m and n are any size.
  * Has ceil( m/NB_X ) blocks of NB_X threads. Each thread does one row.
@@ -180,3 +182,4 @@ zlange_one_kernel(
         dwork[ get_group_id(0) ] = ssum[0];
     }
 }
+#endif

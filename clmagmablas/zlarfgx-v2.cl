@@ -13,6 +13,10 @@
 #define BLOCK_SIZE 256
 #define PRECISION_z
 
+
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
+
 //==============================================================================
 
 __kernel
@@ -89,3 +93,4 @@ void magma_zlarfgx_gpu_kernel( int n, __global magmaDoubleComplex* dx0, int dx0_
         *(dx0-it+j) = MAGMA_Z_MAKE(0., 0.);
     } 
 }
+#endif

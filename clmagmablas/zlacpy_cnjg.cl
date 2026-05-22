@@ -13,6 +13,8 @@
 #include "kernels_header.h"
 #include "zlacpy_cnjg.h"
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
 // copy & conjugate a single vector of length n.
 // TODO: this was modeled on the old zswap routine. Update to new zlacpy code for 2D matrix?
 
@@ -32,3 +34,4 @@ __kernel void zlacpy_cnjg_kernel(
         A2[offset2] = MAGMA_Z_CNJG( A1[offset1] );
     }
 }
+#endif

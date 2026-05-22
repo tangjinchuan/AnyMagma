@@ -16,8 +16,9 @@
 //#define BLOCK_SIZEy  16
 #define BLOCK_SIZEy  8
 
-#define PRECISION_z
+//#define PRECISION_z
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
 
 //==============================================================================
 __kernel void
@@ -73,3 +74,4 @@ magmablas_dznrm2_adjust_kernel(__global double *xnorm, int xnorm_offset, __globa
     if (i == 0)
         xnorm[0] = xnorm[0] * sqrt(1+sum[0]);
 }
+#endif

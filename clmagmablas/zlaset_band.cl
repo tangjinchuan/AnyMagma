@@ -16,6 +16,9 @@
 #include "kernels_header.h"
 #include "zlaset_band.h"
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
+
 /* ////////////////////////////////////////////////////////////////////////////
  -- GPU kernel for setting the k-1 super-diagonals to OFFDIAG
     and the main diagonal to DIAG.
@@ -122,3 +125,4 @@ void zlaset_band_lower(
         }
     }
 }
+#endif

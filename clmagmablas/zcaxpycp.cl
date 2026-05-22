@@ -13,6 +13,8 @@
 #include "kernels_header.h"
 #include "zcaxpycp.h"
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
 // adds   x += r (including conversion to double)  --and--
 // copies w = b
 // each thread does one index, x[i] and w[i]
@@ -36,3 +38,4 @@ zcaxpycp_kernel(
         w[i] = b[i];
     }
 }
+#endif

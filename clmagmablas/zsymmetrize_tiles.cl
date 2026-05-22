@@ -13,6 +13,9 @@
 #include "kernels_header.h"
 #include "zsymmetrize_tiles.h"
 
+
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
 /*
     Symmetrizes ntile tiles at a time, e.g., all diagonal tiles of a matrix.
     Grid is ntile x ceil(m/NB).
@@ -69,3 +72,4 @@ zsymmetrize_tiles_upper( magma_int_t m, __global magmaDoubleComplex *dA, unsigne
         }
     }
 }
+#endif

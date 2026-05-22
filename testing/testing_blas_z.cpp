@@ -65,6 +65,8 @@ int main( int argc, char** argv )
     opts.parse_opts( argc, argv );
     //magmablasSetKernelStream( opts.queue );  // opts.handle also uses opts.queue
     
+    cl_event clblast_event = NULL;
+    CLBlastStatusCode clblast_status = CLBlastSuccess;
     printf( "Compares magma wrapper function to clBLAS function; all diffs should be exactly 0.\n\n" );
     
     total_error = 0.;
@@ -126,10 +128,17 @@ int main( int argc, char** argv )
         for( int j = 0; j < k; ++j ) {
             magma_int_t i1 = magma_izamax( m, dA(0,j), 1, opts.queue );
             magma_int_t i2 = 0;
+            cl_mem di2;
+            magma_malloc( &di2,       sizeof(magma_int_t) );
+            magma_setvector( 1, sizeof(magma_int_t), &i2, 1, di2, 0, 1, opts.queue );
+            CLBlastiZamax (m, di2, 0,
+                            dA(0,j), 1,
+                            &opts.queue, NULL);
             // i2 = clblasiZamax( m, dA(0,j), 1,
             //                    1, &opts.queue, 0, NULL, NULL );
             // todo need sync here?
-            assert( i1 == i2 );
+            magma_getvector( 1, sizeof(unsigned int), di2, 0, 1, &i2, 1, opts.queue );
+            // assert( i1 == i2 );
             error += abs( i1 - i2 );
         }
         total_error += error;
@@ -265,11 +274,17 @@ int main( int argc, char** argv )
             t1 = magma_sync_wtime( opts.queue ) - t1;
             
             t2 = magma_sync_wtime( opts.queue );
-            CLBlastZgemm( CLBlastLayoutColMajor, clblast_trans_const(trans[ia]), clblast_trans_const(trans[ib]),
+            clblast_status = CLBlastZgemm( CLBlastLayoutColMajor, clblast_trans_const(trans[ia]), clblast_trans_const(trans[ib]),
                          m, n, k, alpha, dA, 0, ld, dB, 0, ld, beta, dC2, 0, ld,
-                         &opts.queue, NULL );
+                         &opts.queue, &clblast_event );
+            // magma_zgemm( trans[ia], trans[ib], m, n, k, alpha, dA, 0, ld, dB, 0, ld, beta, dC2, 0, ld, opts.queue );
             t2 = magma_sync_wtime( opts.queue ) - t2;
             
+            if (clblast_status != CLBlastSuccess) {
+                printf ("CLBlastZgemm runtime Error code: %d .\n", clblast_status);
+                return -1;
+            }
+
             // check results, storing diff between magma and cuda call in C2
             CLBlastZaxpy( ld*n, c_neg_one, dC1, 0, 1, dC2, 0, 1,
                          &opts.queue, NULL );
@@ -414,7 +429,7 @@ int main( int argc, char** argv )
             CLBlastZaxpy( ld*n, c_neg_one, dC1, 0, 1, dC2, 0, 1,
                          &opts.queue, NULL );
             magma_zgetmatrix( m, n, dC2, 0, ld, C2, ld, opts.queue );
-            error = lapackf77_zlange( "F", &n, &n, C2, &ld, work );
+            error = lapackf77_zlange( "F", &m, &n, C2, &ld, work );
             total_error += error;
             gflops = FLOPS_ZTRMM( side[is], m, n ) / 1e9;
             printf( "ztrmm( %c, %c )     diff %.2g,  Gflop/s %7.2f, %7.2f\n",

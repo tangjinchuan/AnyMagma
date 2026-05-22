@@ -13,6 +13,9 @@
 #include "kernels_header.h"
 #include "zsymmetrize.h"
 
+
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
 /*
     Matrix is m x m, and is divided into block rows, each NB x m.
     Each block has NB threads.
@@ -61,3 +64,4 @@ zsymmetrize_upper( magma_int_t m, __global magmaDoubleComplex *dA, unsigned long
         }
     }
 }
+#endif

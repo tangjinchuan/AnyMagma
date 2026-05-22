@@ -15,7 +15,10 @@
 #include "zlarfg.h"
 #include "reduce.h"
 
-#define COMPLEX
+//#define COMPLEX
+
+
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
 
 
 // ----------------------------------------
@@ -113,3 +116,4 @@ zlarfg_kernel(
         }
     }
 }
+#endif

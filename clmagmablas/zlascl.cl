@@ -15,6 +15,9 @@
 #include "kernels_header.h"
 #include "zlascl.h"
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
+
 
 // each thread block does one NB x n block row of A.
 // each thread does one row, starting from left edge and moving right.
@@ -73,3 +76,4 @@ zlascl_upper(
             A[j*lda] *= mul;
     }
 }
+#endif

@@ -252,7 +252,7 @@ testers_f: $(testers_f)
 cleanall: clean cleangen
 
 # TODO: should this do all $(subdirs) clean?
-clean: lib/clean testing/clean
+clean: lib/clean testing/clean clmagmablas/clean interface_opencl/clean
 	-rm -f $(deps)
 
 
@@ -363,9 +363,11 @@ control/clean:
 
 interface_opencl/clean:
 	-rm -f $(interface_opencl_obj)
+	cd interface_opencl && rm -f *.o
 
 clmagmablas/clean:
 	-rm -f $(clmagmablas_obj)
+	cd clmagmablas && rm -f *.o *.co
 
 src/clean:
 	-rm -f $(src_obj)
@@ -379,7 +381,7 @@ testing/lin/clean:
 
 # hmm... what should lib/clean do? just the libraries, not objects?
 lib/clean: blas_fix/clean
-	-rm -f $(libs) $(libmagma_obj)
+	-rm -f ./lib/clcompile $(libs) $(libmagma_obj)
 
 
 # ---------------------------------------------------------------------------

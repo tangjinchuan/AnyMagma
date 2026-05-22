@@ -20,6 +20,8 @@
 
 #define BLK_K (NUM_THREADS / (BLK_M * BLK_N))
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // ----------------------------------------
 // Does sum reduction of array x, leaving total in x[0].
@@ -104,3 +106,4 @@ void magmablas_zgemm_reduce_kernel(int k, magmaDoubleComplex alpha,
         }
     }
 }
+#endif

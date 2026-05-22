@@ -18,6 +18,10 @@
 #include "zlaswp.h"
 
 
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
+
+
+
 // Matrix A is stored row-wise in dAT.
 // Divide matrix A into block-columns of NTHREADS columns each.
 // Each GPU block processes one block-column of A.
@@ -120,3 +124,4 @@ __kernel void zlaswp2_kernel(
         }
     }
 }
+#endif
