@@ -33,8 +33,10 @@ All four standard precisions are supported:
 | `c`    | single‑complex     |
 | `z`    | double‑complex     |
 
-## Recent Updates (2026‑05‑19)
+## Recent Updates (2026‑05‑22)
+- Improve support for Win11 + MinGW build by @PanzerQ thanks to Mr Shengyi Zhu from College of Computer Science and Technology GZU.
 
+## Updates (2026‑05‑19)
 - Updated all Makefiles to support the latest clBLAST and OpenBLAS
 - Fixed Python 2 legacy code → Python 3 syntax
 - Many small fixes for variable initialisation
