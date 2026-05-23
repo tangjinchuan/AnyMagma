@@ -46,7 +46,6 @@ magma_dmax_nan_devfunc_n( int n, int i, __local double* x, unsigned long x_offse
 }
 // end max_nan_reduce
 
-#endif
 
 // ----------------------------------------
 /// max reduction, for arbitrary size vector. Leaves max(x) in x[0].
@@ -68,3 +67,4 @@ magma_dmax_nan_kernel( magma_int_t n, __global double* x, unsigned long x_offset
         x[0] = smax[0];
     }
 }
+#endif
