@@ -2,6 +2,20 @@
 
 A community port of clMAGMA, supporting OpenCL 1.2+ devices and tuned clBLAST.
 
+## Recent Updates (2026‑05‑23)
+- Add correct dll generation for Windows instead of .so. Thanks to the issue raised by Mr Shengyi Zhu from College of Computer Science and Technology GZU.
+- Experiment support for devices with only single precision. Thanks to the code review by Mr Shengyi Zhu from College of Computer Science and Technology GZU.
+
+## Updates (2026‑05‑22)
+- Improve support for Win11 + MinGW build by @PanzerQ thanks to Mr Shengyi Zhu from College of Computer Science and Technology GZU.
+
+## Updates (2026‑05‑19)
+- Updated all Makefiles to support the latest clBLAST and OpenBLAS
+- Fixed Python 2 legacy code → Python 3 syntax
+- Many small fixes for variable initialisation
+- Added support for **Windows 11**, **Ubuntu 26.04**, and **macOS 26.5**
+
+
 ## Overview
 
 This project is a future‑port of [clMAGMA](https://icl.utk.edu/magma/) maintained by **Prof. Jinchuan Tang** ([jctang@gzu.edu.cn](mailto:jctang@gzu.edu.cn)).  
@@ -32,15 +46,6 @@ All four standard precisions are supported:
 | `d`    | double (double)    |
 | `c`    | single‑complex     |
 | `z`    | double‑complex     |
-
-## Recent Updates (2026‑05‑22)
-- Improve support for Win11 + MinGW build by @PanzerQ thanks to Mr Shengyi Zhu from College of Computer Science and Technology GZU.
-
-## Updates (2026‑05‑19)
-- Updated all Makefiles to support the latest clBLAST and OpenBLAS
-- Fixed Python 2 legacy code → Python 3 syntax
-- Many small fixes for variable initialisation
-- Added support for **Windows 11**, **Ubuntu 26.04**, and **macOS 26.5**
 
 ## Building AnyMagma
 
