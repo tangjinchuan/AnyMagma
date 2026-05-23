@@ -17,6 +17,12 @@ CXXFLAGS  = $(CFLAGS) -std=c++11
 FFLAGS    = -O3 $(FPIC) -DADD_ -Wall -Wno-unused-dummy-argument
 F90FLAGS  = -O3 $(FPIC) -DADD_ -Wall -Wno-unused-dummy-argument -x f95-cpp-input
 LDFLAGS   = $(FPIC)
+# 检测是否为 MinGW (Windows)
+#ifneq ($(findstring mingw,$(shell $(CC) -dumpmachine)),)
+
+ifeq ($(OS),Windows_NT)
+    LDFLAGS += -Wl,--export-all-symbols
+endif
 
 # ========== 库路径 ==========
 # 方法1：使用 Windows 短路径（推荐，避免空格）

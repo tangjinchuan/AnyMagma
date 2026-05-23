@@ -172,11 +172,17 @@ test_headers: $(header_gch)
 
 %.h.gch: %.h
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
-
+	
+# 检测操作系统
+ifeq ($(OS),Windows_NT)
+    SHLIB_EXT = dll
+else
+    SHLIB_EXT = so
+endif
 
 # ----- libraries
 libmagma_a      := lib/libclmagma.a
-libmagma_so     := lib/libclmagma.so
+libmagma_so     := lib/libclmagma.$(SHLIB_EXT)
 libblas_fix_a   := lib/libblas_fix.a
 libtest_a       := testing/libtest.a
 liblapacktest_a := testing/lin/liblapacktest.a
