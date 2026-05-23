@@ -271,6 +271,12 @@ have_fpic = $(and $(findstring -fPIC, $(CFLAGS)),   \
                   $(findstring -fPIC, $(FFLAGS)),   \
                   $(findstring -fPIC, $(F90FLAGS)))
 
+ifeq ($(OS),Windows_NT)
+    IMPLIB_FLAG = -Wl,--out-implib=$@.a
+else
+    IMPLIB_FLAG =
+endif
+
 ifneq ($(have_fpic),)
     # --------------------
     # if all flags have -fPIC: compile shared & static
@@ -288,8 +294,9 @@ ifneq ($(have_fpic),)
     $(libmagma_so):
 	@echo "===== shared library $@"
 	$(CXX) $(LDFLAGS) -shared -o $@ \
-		$^ \
-		$(LIBS)
+	$(IMPLIB_FLAG) \
+	$^ \
+	$(LIBS)
 	@echo
 else
     # --------------------
@@ -387,7 +394,7 @@ testing/lin/clean:
 
 # hmm... what should lib/clean do? just the libraries, not objects?
 lib/clean: blas_fix/clean
-	-rm -f ./lib/clcompile $(libs) $(libmagma_obj)
+	-rm -f ./lib/clcompile $(libs) $(libmagma_obj) $(libmagma_so).a
 
 
 # ---------------------------------------------------------------------------
@@ -448,9 +455,9 @@ clmagmablas/kernel_files.cpp: $(clkernels_all)
 $(testers): %: %.$(o_ext)
 	$(CXX) $(LDFLAGS) $(RPATH) \
 	-o $@ $< \
-	-L./lib -lclmagma \
 	-L./testing -ltest \
 	-L./testing/lin -llapacktest \
+	-L./lib -lclmagma \
 	$(LIBS)
 
 # link Fortran testing_foo from testing_foo.o
