@@ -16,8 +16,9 @@
 //#define BLOCK_SIZEy  16
 #define BLOCK_SIZEy  8
 
-//#define PRECISION_z
-
+/*Enable a specified macro, _z will be replaced by _ s d z in the generated code for other types.*/
+#define PRECISION_z 
+/*Note that defined (macro) will not be replaced.*/
 #if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
 
 //==============================================================================
