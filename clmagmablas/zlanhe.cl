@@ -44,7 +44,7 @@ zlanhe_inf_kernel_lower(
     int diag = get_group_id(0)*inf_bs;
     int ind  = get_group_id(0)*inf_bs + tx;
     
-    double res = 0.;
+    double res = 0;
     
     __local magmaDoubleComplex la[inf_bs][inf_bs+1];
     
@@ -152,7 +152,7 @@ zlanhe_inf_kernel_lower(
         
         // ----------
         // 32x4 threads store partial sums into shared memory
-        la[tx][ty] = MAGMA_Z_MAKE( res, 0. );
+        la[tx][ty] = MAGMA_Z_MAKE( res, 0 );
         barrier( CLK_LOCAL_MEM_FENCE );
         
         // first column of 32x1 threads computes final sum of each row
@@ -219,7 +219,7 @@ zlanhe_inf_kernel_lower(
         
         // ----------
         // 32x4 threads store partial sums into shared memory
-        la[tx][ty]= MAGMA_Z_MAKE( res, 0. );
+        la[tx][ty]= MAGMA_Z_MAKE( res, 0 );
         barrier( CLK_LOCAL_MEM_FENCE );
         
         // first column of 32x1 threads computes final sum of each row
@@ -261,7 +261,7 @@ zlanhe_inf_kernel_upper(
     int diag = get_group_id(0)*inf_bs;
     int ind  = get_group_id(0)*inf_bs + tx;
     
-    double res = 0.;
+    double res = 0;
     
     __local magmaDoubleComplex la[inf_bs][inf_bs+1];
     
@@ -369,7 +369,7 @@ zlanhe_inf_kernel_upper(
         
         // ----------
         // 32x4 threads store partial sums into shared memory
-        la[tx][ty] = MAGMA_Z_MAKE( res, 0. );
+        la[tx][ty] = MAGMA_Z_MAKE( res, 0 );
         barrier( CLK_LOCAL_MEM_FENCE );
         
         // first column of 32x1 threads computes final sum of each row
@@ -438,7 +438,7 @@ zlanhe_inf_kernel_upper(
         
         // ----------
         // 32x4 threads store partial sums into shared memory
-        la[tx][ty]= MAGMA_Z_MAKE( res, 0. );
+        la[tx][ty]= MAGMA_Z_MAKE( res, 0 );
         barrier( CLK_LOCAL_MEM_FENCE );
         
         // first column of 32x1 threads computes final sum of each row
