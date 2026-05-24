@@ -425,9 +425,9 @@ subs = {
     ('float',               'double',              'magmaFloatComplex',   'magmaDoubleComplex'  ),
     ('float',               'double',              'PLASMA_Complex32_t',  'PLASMA_Complex64_t'  ),
     ('PlasmaRealFloat',     'PlasmaRealDouble',    'PlasmaComplexFloat',  'PlasmaComplexDouble' ),
-    ('real',                'double precision',    'complex',             'complex\*16'         ),
-    ('REAL',                'DOUBLE_PRECISION',    'COMPLEX',             'COMPLEX_16'          ),
-    ('REAL',                'DOUBLE PRECISION',    'COMPLEX',             'COMPLEX\*16'         ),
+    ('real',                'double precision',    'complex',             r'complex\*16'         ),
+    ('REAL',                'DOUBLE_PRECISION',    'COMPLEX',             r'COMPLEX_16'          ),
+    ('REAL',                'DOUBLE PRECISION',    'COMPLEX',             r'COMPLEX\*16'         ),
     ('sizeof_real',         'sizeof_double',       'sizeof_complex',      'sizeof_complex_16'   ),  # before complex
     ('real',                'real',                'complex',             'complex'             ),
     ('float',               'double',              'float2',              'double2'             ),
@@ -688,8 +688,8 @@ subs = {
     ['plain', 'tau'],
 
     # ----- Replacements
-    ('(\w+\*?)\s+(\w+)\s*\(([a-z* ,A-Z_0-9]*)\)\s*{\s+(.*)\s*#pragma tracing_start\s+(.*)\s+#pragma tracing_end\s+(.*)\s+}',
+    (r'(\w+\*?)\s+(\w+)\s*\(([a-z* ,A-Z_0-9]*)\)\s*{\s+(.*)\s*#pragma tracing_start\s+(.*)\s+#pragma tracing_end\s+(.*)\s+}',
       r'\1 \2(\3){\n\4tau("\2");\5tau();\6}'),
-    ('\.c','.c.tau'),
+    (r'\.c', '.c.tau'),
   ],
 };
