@@ -50,7 +50,7 @@ MAGMA_DLLPORT int MAGMA_CDECL pthread_equal(pthread_t thread1, pthread_t thread2
 {
     if (thread1.uThId == thread2.uThId) // && thread1.hThread == thread2.hThread)
         return 1;
-        return 0;
+    return 0;
 }
 
 extern "C"
