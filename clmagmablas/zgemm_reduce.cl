@@ -9,6 +9,8 @@
 */
 #include "kernels_header.h"
 
+/*Enable a specified macro, _z will be replaced by s d z in the generated code for other types.*/
+#define PRECISION_z 
 
 //#define NUM_THREADS 1024
 #define NUM_THREADS 256
