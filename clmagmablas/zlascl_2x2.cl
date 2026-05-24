@@ -13,6 +13,8 @@
 */
 #include "kernels_header.h"
 #include "zlascl_2x2.h"
+/*Enable a specified macro, _z will be replaced by s d z in the generated code for other types.*/
+#define PRECISION_z 
 
 #define A(i_, j_) (A[(i_) + (j_)*lda])
 #define W(i_, j_) (W[(i_) + (j_)*ldw])
