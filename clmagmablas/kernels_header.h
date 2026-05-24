@@ -1,15 +1,7 @@
 #ifndef KERNELS_HEADER_H
 #define KERNELS_HEADER_H
 
-/*
- *   -- clMAGMA (version 0.1) --
- *      Univ. of Tennessee, Knoxville
- *      Univ. of California, Berkeley
- *      Univ. of Colorado, Denver
- *      @date
- *
- * @author Mark Gates
- */
+
 
 // 启用双精度浮点扩展（如果设备支持）
 #ifdef cl_khr_fp64
@@ -145,11 +137,11 @@ static inline DoubleComplex zdiv(DoubleComplex a, DoubleComplex b)
 #define MAGMA_C_ABS(a)        magma_cabsf(a)
 #define MAGMA_C_EQUAL(a,b)    (MAGMA_C_REAL(a)==MAGMA_C_REAL(b) && MAGMA_C_IMAG(a)==MAGMA_C_IMAG(b))
 
-#define MAGMA_C_ZERO          MAGMA_C_MAKE( 0.0, 0.0)
-#define MAGMA_C_ONE           MAGMA_C_MAKE( 1.0, 0.0)
-#define MAGMA_C_HALF          MAGMA_C_MAKE( 0.5, 0.0)
-#define MAGMA_C_NEG_ONE       MAGMA_C_MAKE(-1.0, 0.0)
-#define MAGMA_C_NEG_HALF      MAGMA_C_MAKE(-0.5, 0.0)
+#define MAGMA_C_ZERO          MAGMA_C_MAKE( 0.0f, 0.0f)
+#define MAGMA_C_ONE           MAGMA_C_MAKE( 1.0f, 0.0f)
+#define MAGMA_C_HALF          MAGMA_C_MAKE( 0.5f, 0.0f)
+#define MAGMA_C_NEG_ONE       MAGMA_C_MAKE(-1.0f, 0.0f)
+#define MAGMA_C_NEG_HALF      MAGMA_C_MAKE(-0.5f, 0.0f)
 #define MAGMA_C_NEGATE(a)     MAGMA_C_MAKE(-(a).x, -(a).y)
 
 // 双精度复数宏（仅在支持 double 时可用）
@@ -206,11 +198,11 @@ static inline DoubleComplex zdiv(DoubleComplex a, DoubleComplex b)
 #define MAGMA_S_CNJG(a)       (a)
 #define MAGMA_S_EQUAL(a,b)    ((a) == (b))
 
-#define MAGMA_S_ZERO          ( 0.0)
-#define MAGMA_S_ONE           ( 1.0)
-#define MAGMA_S_HALF          ( 0.5)
-#define MAGMA_S_NEG_ONE       (-1.0)
-#define MAGMA_S_NEG_HALF      (-0.5)
+#define MAGMA_S_ZERO          ( 0.0f)
+#define MAGMA_S_ONE           ( 1.0f)
+#define MAGMA_S_HALF          ( 0.5f)
+#define MAGMA_S_NEG_ONE       (-1.0f)
+#define MAGMA_S_NEG_HALF      (-0.5f)
 #define MAGMA_S_NEGATE(a)     (-(a))
 
 #endif        //  #ifndef KERNELS_HEADER_H
