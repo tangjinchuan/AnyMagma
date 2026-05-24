@@ -13,13 +13,13 @@
 */
 #include "kernels_header.h"
 #include "zlanhe.h"
-#include "magma_dmax_nan.h"
 
-//#define PRECISION_z
+
+#define PRECISION_z
 
 
 #if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
-
+#include "magma_dmax_nan.h"
 
 /* ====================================================================== */
 /* inf-norm */
