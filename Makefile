@@ -292,7 +292,7 @@ ifneq ($(have_fpic),)
     
     # lib 目标：先构建 static 和 shared，再尝试构建内核（失败不中断）
     lib: static shared
-        -$(MAKE) kernels
+		-$(MAKE) kernels
     
     # 独立的内核构建目标
     kernels: $(libclkernels_co)
@@ -315,7 +315,7 @@ else
     static: $(libmagma_a)
     
     lib: static
-        -$(MAKE) kernels
+		-$(MAKE) kernels
     
     kernels: $(libclkernels_co)
     
