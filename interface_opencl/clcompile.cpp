@@ -79,7 +79,7 @@ int main( int argc, char** argv )
             fprintf( stderr, "Error: no output file given\n" );
             exit(1);
         }
-        g_runtime.init( true );
+        g_runtime.init( false );
         g_runtime.archive_files( argc, argv, output_file );
         g_runtime.quit();
     }
