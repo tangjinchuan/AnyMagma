@@ -12,6 +12,9 @@
 */
 #include "kernels_header.h"
 
+/*Enable a specified macro, _d will be replaced by _s in the generated code for other types.*/
+#define PRECISION_d 
+
 #if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
 #include "magma_dmax_nan.h"
 
