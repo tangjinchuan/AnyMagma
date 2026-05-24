@@ -57,11 +57,11 @@ void magma_zlarfgx_gpu_kernel( int n, __global magmaDoubleComplex* dx0, int dx0_
             // todo: deal with badly scaled vectors (see lapack's larfg)
             if (j==0){
                *dtau = (beta - alpha) / beta;
-               //*dx0  = 1.;
+               //*dx0  = 1;
                *dA   = beta;  
             }
 
-            scale = 1. / (alpha - beta);
+            scale = 1 / (alpha - beta);
 #else
             magmaDoubleComplex alpha = *dx0;
             double alphar =  MAGMA_Z_REAL(alpha), alphai = MAGMA_Z_IMAG(alpha);
@@ -73,8 +73,8 @@ void magma_zlarfgx_gpu_kernel( int n, __global magmaDoubleComplex* dx0, int dx0_
             // todo: deal with badly scaled vectors (see lapack's larfg)
             if (j==0){
                *dtau = MAGMA_Z_MAKE((beta - alphar)/beta, -alphai/beta);
-               //*dx0  = MAGMA_Z_MAKE(  1., 0.);
-               *dA   = MAGMA_Z_MAKE(beta, 0.);
+               //*dx0  = MAGMA_Z_MAKE(  1, 0);
+               *dA   = MAGMA_Z_MAKE(beta, 0);
             }            
 
             alpha = MAGMA_Z_MAKE( MAGMA_Z_REAL(alpha) - beta, MAGMA_Z_IMAG(alpha));
@@ -90,7 +90,7 @@ void magma_zlarfgx_gpu_kernel( int n, __global magmaDoubleComplex* dx0, int dx0_
 
     if (j<it){
         *( dA-it+j) = *(dx0-it+j);
-        *(dx0-it+j) = MAGMA_Z_MAKE(0., 0.);
+        *(dx0-it+j) = MAGMA_Z_MAKE(0, 0);
     } 
 }
 #endif
