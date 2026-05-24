@@ -2,7 +2,10 @@
 
 A community port of clMAGMA, supporting OpenCL 1.2+ devices and tuned clBLAST.
 
-## Recent Updates (2026‑05‑23)
+## Recent Updates (2026‑05‑25)
+- Add numerous fixes to enable experimental support for FP32‑only devices, including Apple Silicon, ARM Mali GPUs, and Intel Xe.
+
+## Updates (2026‑05‑23)
 - Add correct dll generation for Windows instead of .so. Thanks to the issue raised by Mr Shengyi Zhu from College of Computer Science and Technology GZU.
 - Experiment support for devices with only single precision. Thanks to the code review by Mr Shengyi Zhu from College of Computer Science and Technology GZU.
 
