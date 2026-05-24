@@ -38,8 +38,8 @@ zlascl_2x2_lower(
     magmaDoubleComplex D21 = W( 1, 0 );
     magmaDoubleComplex D11 = MAGMA_Z_DIV( W( 1, 1 ), D21 );
     magmaDoubleComplex D22 = MAGMA_Z_DIV( W( 0, 0 ), MAGMA_Z_CNJG( D21 ) );
-    double T = 1.0 / ( MAGMA_Z_REAL( MAGMA_Z_MUL( D11, D22 ) ) - 1.0 );
-    D21 = MAGMA_Z_DIV( MAGMA_Z_MAKE(T,0.0), D21 );
+    double T = 1 / ( MAGMA_Z_REAL( MAGMA_Z_MUL( D11, D22 ) ) - 1 );
+    D21 = MAGMA_Z_DIV( MAGMA_Z_MAKE(T,0), D21 );
 
     if (ind < m) {
         A( ind, 0 ) = MAGMA_Z_MUL( MAGMA_Z_CNJG( D21 ),
@@ -68,8 +68,8 @@ zlascl_2x2_upper(
     magmaDoubleComplex D21 = W( m, 1 );
     magmaDoubleComplex D11 = MAGMA_Z_DIV( W( m+1, 1 ), MAGMA_Z_CNJG( D21 ) );
     magmaDoubleComplex D22 = MAGMA_Z_DIV( W( m, 0 ), D21 );
-    double T = 1.0 / ( MAGMA_Z_REAL( MAGMA_Z_MUL( D11, D22 ) ) - 1.0 );
-    D21 = MAGMA_Z_DIV( MAGMA_Z_MAKE(T,0.0), D21 );
+    double T = 1 / ( MAGMA_Z_REAL( MAGMA_Z_MUL( D11, D22 ) ) - 1 );
+    D21 = MAGMA_Z_DIV( MAGMA_Z_MAKE(T,0), D21 );
 
     if (ind < m) {
         A( ind, 0 ) = MAGMA_Z_MUL( D21,
