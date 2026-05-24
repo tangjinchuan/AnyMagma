@@ -207,7 +207,15 @@ zlanhe_inf_kernel_lower(
                 A += lda;
             }
             // sum diagonal (ignoring imaginary part)
-            res += MAGMA_D_ABS( MAGMA_Z_REAL( *A ));
+        #if (defined(cl_khr_fp64) || defined(cl_amd_fp64))
+            #if ( defined(PRECISION_c) || defined(PRECISION_s)
+                res += MAGMA_S_ABS( MAGMA_Z_REAL( *A ));
+            #else
+                res += MAGMA_D_ABS( MAGMA_Z_REAL( *A ));
+            #endif
+        #else
+            res += MAGMA_S_ABS( MAGMA_Z_REAL( *A ));
+        #endif
             A += 1;
             // sum column below diagonal
             for (int j=tx+1; j < n_mod_bs; j++) {
@@ -426,7 +434,15 @@ zlanhe_inf_kernel_upper(
                 A += 1;                                //#
             }
             // sum diagonal (ignoring imaginary part)
-            res += MAGMA_D_ABS( MAGMA_Z_REAL( *A ));
+        #if (defined(cl_khr_fp64) || defined(cl_amd_fp64))
+            #if ( defined(PRECISION_c) || defined(PRECISION_s)
+                res += MAGMA_S_ABS( MAGMA_Z_REAL( *A ));
+            #else
+                res += MAGMA_D_ABS( MAGMA_Z_REAL( *A ));
+            #endif
+        #else
+            res += MAGMA_S_ABS( MAGMA_Z_REAL( *A ));
+        #endif
             A += lda;                                  //#
             // sum #row right of diagonal
             for (int j=tx+1; j < n_mod_bs; j++) {
@@ -477,7 +493,15 @@ zlanhe_max_kernel_lower(
             A += lda;
         }
         // diagonal element (ignoring imaginary part)
-        res = max_nan( res, MAGMA_D_ABS( MAGMA_Z_REAL( *A )));
+    #if (defined(cl_khr_fp64) || defined(cl_amd_fp64))
+        #if ( defined(PRECISION_c) || defined(PRECISION_s)
+             res = max_nan( res, MAGMA_S_ABS( MAGMA_Z_REAL( *A )));
+        #else
+             res = max_nan( res, MAGMA_D_ABS( MAGMA_Z_REAL( *A )));
+        #endif
+    #else
+        res = max_nan( res, MAGMA_S_ABS( MAGMA_Z_REAL( *A )));
+    #endif
         dwork[ind] = res;
     }
 }
@@ -504,7 +528,15 @@ zlanhe_max_kernel_upper(
             A -= lda;
         }
         // diagonal element (ignoring imaginary part)
-        res = max_nan( res, MAGMA_D_ABS( MAGMA_Z_REAL( *A )));
+    #if (defined(cl_khr_fp64) || defined(cl_amd_fp64))
+        #if ( defined(PRECISION_c) || defined(PRECISION_s)
+            res = max_nan( res, MAGMA_S_ABS( MAGMA_Z_REAL( *A )));
+        #else
+            res = max_nan( res, MAGMA_D_ABS( MAGMA_Z_REAL( *A )));
+        #endif
+    #else
+        res = max_nan( res, MAGMA_S_ABS( MAGMA_Z_REAL( *A )));
+    #endif
         dwork[ind] = res;
     }
 }
