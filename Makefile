@@ -172,8 +172,9 @@ test_headers: $(header_gch)
 
 %.h.gch: %.h
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
-	
-# 检测操作系统
+
+
+# ----- 自动检测操作系统，选择动态库扩展名
 ifeq ($(OS),Windows_NT)
     SHLIB_EXT = dll
 else
@@ -240,7 +241,7 @@ endif
 # ---------------------------------------------------------------------------
 # targets
 
-.PHONY: all lib static shared clean test
+.PHONY: all lib static shared clean test kernels
 
 .DEFAULT_GOAL := all
 
@@ -265,12 +266,13 @@ clean: lib/clean testing/clean clmagmablas/clean interface_opencl/clean
 # ---------------------------------------------------------------------------
 # shared libraries
 
-# check whether all FLAGS have -fPIC
+# 检查所有编译标志是否包含 -fPIC
 have_fpic = $(and $(findstring -fPIC, $(CFLAGS)),   \
                   $(findstring -fPIC, $(CXXFLAGS)), \
                   $(findstring -fPIC, $(FFLAGS)),   \
                   $(findstring -fPIC, $(F90FLAGS)))
 
+# Windows 下需要生成导入库 (.dll.a)
 ifeq ($(OS),Windows_NT)
     IMPLIB_FLAG = -Wl,--out-implib=$@.a
 else
@@ -278,19 +280,28 @@ else
 endif
 
 ifneq ($(have_fpic),)
-    # --------------------
-    # if all flags have -fPIC: compile shared & static
+    # 所有标志都有 -fPIC：同时编译静态库和动态库
+    # libs 只包含库文件本身，不包含内核包（内核包单独生成）
+    libs := $(libmagma_a) $(libmagma_so)
+    
+    # 静态库目标：不再依赖内核包
+    static: $(libmagma_a)
+    
+    # 动态库目标：不再依赖内核包
+    shared: $(libmagma_so)
+    
+    # lib 目标：先构建 static 和 shared，再尝试构建内核（失败不中断）
     lib: static shared
+        -$(MAKE) kernels
     
-    libs := $(libmagma_a) $(libmagma_so) $(libclkernels_co)
-
-    shared: $(libmagma_so) $(libclkernels_co)
+    # 独立的内核构建目标
+    kernels: $(libclkernels_co)
     
-    # as a shared library, changing libmagma.so does NOT require re-linking testers,
-    # so use order-only prerequisite (after "|").
+    # 测试程序依赖静态库和动态库（顺序依赖，避免不必要的重链接）
     $(testers):        | $(libmagma_a) $(libmagma_so)
     $(testers_f):      | $(libmagma_a) $(libmagma_so)
     
+    # 生成动态库（Windows 下同时生成 .dll 和 .dll.a）
     $(libmagma_so):
 	@echo "===== shared library $@"
 	$(CXX) $(LDFLAGS) -shared -o $@ \
@@ -299,25 +310,24 @@ ifneq ($(have_fpic),)
 	$(LIBS)
 	@echo
 else
-    # --------------------
-    # else: some flags are missing -fPIC: compile static only
-    lib: static
+    # 缺少 -fPIC：只编译静态库
+    libs := $(libmagma_a)   # 不包含内核包
+    static: $(libmagma_a)
     
-    libs := $(libmagma_a) $(libclkernels_co)
-
+    lib: static
+        -$(MAKE) kernels
+    
+    kernels: $(libclkernels_co)
+    
     shared:
 	@echo "Error: 'make shared' requires CFLAGS, CXXFLAGS, FFLAGS, F90FLAGS to have -fPIC."
-	@echo "This is now the default in most example make.inc.* files, except atlas."
 	@echo "Please edit your make.inc file and uncomment FPIC."
 	@echo "After updating make.inc, please 'make clean && make shared && make test'."
 	@echo "To compile only a static library, use 'make static'."
     
-    # as a static library, changing libmagma.a does require re-linking testers,
-    # so use regular prerequisite.
     $(testers):        $(libmagma_a)
     $(testers_f):      $(libmagma_a)
     
-    # make libmagma.so ==> make shared ==> prints warning
     $(libs_so): shared
 endif
 
@@ -329,8 +339,7 @@ endif
 # ---------------------------------------------------------------------------
 # static libraries
 
-static: $(libmagma_a) $(libclkernels_co)
-
+# static 目标已在 shared libraries 段落中定义，此处只保留构建规则
 $(libs_a):
 	@echo "===== static library $@"
 	$(ARCH) $(ARCHFLAGS) $@ $^
