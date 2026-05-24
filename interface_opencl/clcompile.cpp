@@ -58,7 +58,7 @@ int main( int argc, char** argv )
             fprintf( stderr, "Error: cannot specify -o when generating multiple output files\n" );
             exit(1);
         }
-        g_runtime.init( true );
+        g_runtime.init( false );
         for( int i=0; i < argc; ++i ) {
             if ( g_runtime.compile_file( argv[i], output_file ) != 0 ) {
                 err = 1;
@@ -79,7 +79,7 @@ int main( int argc, char** argv )
             fprintf( stderr, "Error: no output file given\n" );
             exit(1);
         }
-        g_runtime.init( true );
+        g_runtime.init( false );
         g_runtime.archive_files( argc, argv, output_file );
         g_runtime.quit();
     }
