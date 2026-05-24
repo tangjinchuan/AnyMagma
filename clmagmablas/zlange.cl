@@ -11,11 +11,12 @@
        @author Mark Gates
 */
 #include "kernels_header.h"
+
+
+#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
 #include "zlange.h"
 #include "magma_dmax_nan.h"
 #include "reduce.h"
-
-#if ( (defined(PRECISION_z) || defined(PRECISION_d)) && (defined(cl_khr_fp64) || defined(cl_amd_fp64)) ) || ( defined(PRECISION_c) || defined(PRECISION_s) )
 
 /* Computes row sums dwork[i] = sum( abs( A(i,:) )), i=0:m-1, for || A ||_inf,
  * where m and n are any size.
