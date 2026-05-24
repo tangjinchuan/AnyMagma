@@ -10,6 +10,8 @@
 */
 #include "kernels_header.h"
 #include "reduce.h"
+/*Enable a specified macro, _z will be replaced by s d z in the generated code for other types.*/
+#define PRECISION_z 
 
 //#define BLOCK_SIZE 768
 #define BLOCK_SIZE 256
