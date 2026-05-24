@@ -142,95 +142,110 @@ void replace_all(
 /// Queries for OpenCL platforms and devices, and creates an OpenCL context.
 void clmagma_runtime::init( bool require_double )
 {
-    char device_name[1024];
     cl_int err;
 
     // ----- 1. Get all platforms -----
     cl_uint num_platforms;
-    err = clGetPlatformIDs(0, nullptr, &num_platforms);
-    check_error(err);
-    if (num_platforms == 0) {
-        fprintf(stderr, "Error: No OpenCL platforms found.\n");
+    err = clGetPlatformIDs( 0, nullptr, &num_platforms );
+    check_error( err );
+    if ( num_platforms == 0 ) {
+        fprintf( stderr, "Error: No OpenCL platforms found.\n" );
         exit(1);
     }
 
-    std::vector<cl_platform_id> platforms(num_platforms);
-    err = clGetPlatformIDs(num_platforms, platforms.data(), nullptr);
-    check_error(err);
+    std::vector<cl_platform_id> platforms( num_platforms );
+    err = clGetPlatformIDs( num_platforms, platforms.data(), nullptr );
+    check_error( err );
 
-    // ----- 2. Collect suitable devices from all platforms -----
-    std::vector<cl_device_id> valid_devices;
+    // ----- 2. Collect the first usable device -----
+    cl_device_id   found_device = nullptr;
+    cl_platform_id found_platform = nullptr;
+    bool           found = false;
 
-    for (auto platform : platforms) {
-        cl_uint num_devices;
-        // Query only GPU and accelerator devices (skip CPU)
-        err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR,
-                             0, nullptr, &num_devices);
-        if (err == CL_DEVICE_NOT_FOUND) {
-            continue;   // no GPU/accelerator on this platform
-        }
-        check_error(err);
+    // List of device type masks to try (ordered by preference)
+    std::vector<cl_device_type> type_masks = {
+        CL_DEVICE_TYPE_GPU,
+        CL_DEVICE_TYPE_ACCELERATOR,
+        CL_DEVICE_TYPE_CPU,
+        CL_DEVICE_TYPE_ALL
+    };
 
-        if (num_devices == 0) continue;
+    for ( auto platform : platforms ) {
+        for ( auto mask : type_masks ) {
+            // Query number of devices
+            cl_uint num_devices = 0;
+            err = clGetDeviceIDs( platform, mask, 0, nullptr, &num_devices );
+            if ( err != CL_SUCCESS || num_devices == 0 )
+                continue;
 
-        std::vector<cl_device_id> devices(num_devices);
-        err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR,
-                             num_devices, devices.data(), nullptr);
-        check_error(err);
+            // Get the first device (we only need one)
+            cl_device_id dev;
+            err = clGetDeviceIDs( platform, mask, 1, &dev, nullptr );
+            if ( err != CL_SUCCESS )
+                continue;
 
-        // Optionally filter by double precision support
-        for (auto dev : devices) {
-            if (require_double) {
-                cl_device_fp_config config;
-                err = clGetDeviceInfo(dev, CL_DEVICE_DOUBLE_FP_CONFIG, sizeof(config), &config, nullptr);
-                check_error(err);
-                if (config == 0) {
-                    clGetDeviceInfo(dev, CL_DEVICE_NAME, sizeof(device_name), device_name, nullptr);
-                    // Uncomment next line if you want to see skipped devices
-                    // fprintf(stderr, "Skipping device %s: no double precision\n", device_name);
-                    continue;
-                }
+            // Optional double‑precision check
+            if ( require_double ) {
+                cl_device_fp_config cfg;
+                err = clGetDeviceInfo( dev, CL_DEVICE_DOUBLE_FP_CONFIG, sizeof(cfg), &cfg, nullptr );
+                if ( err != CL_SUCCESS || cfg == 0 )
+                    continue;   // skip if double not supported
             }
-            valid_devices.push_back(dev);
+
+            // Verify that the device is really usable (e.g., can query its name)
+            char dev_name[256];
+            err = clGetDeviceInfo( dev, CL_DEVICE_NAME, sizeof(dev_name), dev_name, nullptr );
+            if ( err != CL_SUCCESS ) {
+                fprintf( stderr, "Warning: device info query failed, skipping device\n" );
+                continue;
+            }
+
+            // All checks passed – accept this device
+            found_device   = dev;
+            found_platform = platform;
+            found = true;
+            break;
         }
+        if ( found )
+            break;
     }
 
-    m_num_devices = valid_devices.size();
-    if (m_num_devices == 0) {
-        fprintf(stderr, "Error: No suitable OpenCL device found (GPU/accelerator");
-        if (require_double) fprintf(stderr, " with double precision");
-        fprintf(stderr, ").\n");
+    if ( !found ) {
+        fprintf( stderr, "Error: No usable OpenCL device found (double support = %s).\n",
+                 require_double ? "required" : "not required" );
         exit(1);
     }
 
-    // Copy to fixed-size m_devices array (MAX_DEVICES must be large enough)
-    if (m_num_devices > MAX_DEVICES) {
-        fprintf(stderr, "Warning: Number of devices (%u) exceeds MAX_DEVICES (%d). Using first %d.\n",
-                m_num_devices, MAX_DEVICES, MAX_DEVICES);
-        m_num_devices = MAX_DEVICES;
-    }
-    for (unsigned int i = 0; i < m_num_devices; ++i) {
-        m_devices[i] = valid_devices[i];
-    }
+    // ----- 3. Create OpenCL context with the found device -----
+    m_num_devices = 1;
+    m_devices[0] = found_device;
 
-    // ----- 3. Create OpenCL context -----
-    m_context = clCreateContext(nullptr, m_num_devices, m_devices, nullptr, nullptr, &err);
-    check_error(err);
-
-    // ----- 4. Kernel file map and search path (unchanged) -----
-    for (int i = 0; i < c_kernel_files_len; ++i) {
-        m_kernel_files[c_kernel_files[i].name] = c_kernel_files[i].file;
+    // Some OpenCL implementations require the platform to be specified in context properties
+    cl_context_properties props[] = {
+        CL_CONTEXT_PLATFORM, (cl_context_properties)found_platform,
+        0
+    };
+    m_context = clCreateContext( props, m_num_devices, m_devices, nullptr, nullptr, &err );
+    if ( err != CL_SUCCESS ) {
+        fprintf( stderr, "Error creating OpenCL context: %d (device %p)\n", err, found_device );
+        exit(1);
     }
 
-    const char* path = getenv("CLMAGMA_PATH");
-    if (path == nullptr) {
-        path = getenv("LD_LIBRARY_PATH");
-        if (path == nullptr) {
+    // ----- 4. Kernel file map (unchanged) -----
+    for ( int i = 0; i < c_kernel_files_len; ++i ) {
+        m_kernel_files[ c_kernel_files[i].name ] = c_kernel_files[i].file;
+    }
+
+    // ----- 5. Search path for .co / .cl files (unchanged) -----
+    const char* path = getenv( "CLMAGMA_PATH" );
+    if ( path == nullptr ) {
+        path = getenv( "LD_LIBRARY_PATH" );
+        if ( path == nullptr )
             path = ".";
-        }
     }
     m_path = path;
 }
+
 
 
 // ------------------------------------------------------------
