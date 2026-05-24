@@ -144,68 +144,88 @@ void clmagma_runtime::init( bool require_double )
 {
     char device_name[1024];
     cl_int err;
-    
-    cl_uint num_platforms;
-    cl_platform_id platform;
-    err = clGetPlatformIDs( 1, &platform, &num_platforms );
-    check_error( err );
-    
-    // TODO allocate m_devices. This next (commented out) line counts them.
-    //err = clGetDeviceIDs( platform, CL_DEVICE_TYPE_GPU, 0, NULL, &m_num_devices );
 
-    // err = clGetDeviceIDs( platform, CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR, MAX_DEVICES, m_devices, &m_num_devices );
-    err = clGetDeviceIDs( platform, CL_DEVICE_TYPE_ALL, MAX_DEVICES, m_devices, &m_num_devices );
-    check_error( err );
-    
-    // MAGMA requires double precision; skip devices that lack it.
-    // Otherwise we get compile errors for some devices but not others,
-    // which causes clGetProgramInfo( program, CL_PROGRAM_BINARY_SIZES, ... )
-    // and such to fail (abort).
-    if ( require_double ) {
-        unsigned int good = 0;
-        for( unsigned int dev=0; dev < m_num_devices; ++dev ) {
-            cl_device_fp_config config;
-            err = clGetDeviceInfo( m_devices[dev], CL_DEVICE_DOUBLE_FP_CONFIG, sizeof(config), &config, NULL );
-            check_error( err );
-            if ( config == 0 ) {
-                clGetDeviceInfo( m_devices[dev], CL_DEVICE_NAME, sizeof(device_name), device_name,  NULL );
-                //fprintf( stderr, "skippping device %s: doesn't support double precision\n", device_name );
-            }
-            else {
-                // move good devices up
-                if ( dev != good ) {
-                    m_devices[good] = m_devices[dev];
-                }
-                ++good;
-            }
+    // ----- 1. Get all platforms -----
+    cl_uint num_platforms;
+    err = clGetPlatformIDs(0, nullptr, &num_platforms);
+    check_error(err);
+    if (num_platforms == 0) {
+        fprintf(stderr, "Error: No OpenCL platforms found.\n");
+        exit(1);
+    }
+
+    std::vector<cl_platform_id> platforms(num_platforms);
+    err = clGetPlatformIDs(num_platforms, platforms.data(), nullptr);
+    check_error(err);
+
+    // ----- 2. Collect suitable devices from all platforms -----
+    std::vector<cl_device_id> valid_devices;
+
+    for (auto platform : platforms) {
+        cl_uint num_devices;
+        // Query only GPU and accelerator devices (skip CPU)
+        err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR,
+                             0, nullptr, &num_devices);
+        if (err == CL_DEVICE_NOT_FOUND) {
+            continue;   // no GPU/accelerator on this platform
         }
-        m_num_devices = good;
+        check_error(err);
+
+        if (num_devices == 0) continue;
+
+        std::vector<cl_device_id> devices(num_devices);
+        err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR,
+                             num_devices, devices.data(), nullptr);
+        check_error(err);
+
+        // Optionally filter by double precision support
+        for (auto dev : devices) {
+            if (require_double) {
+                cl_device_fp_config config;
+                err = clGetDeviceInfo(dev, CL_DEVICE_DOUBLE_FP_CONFIG, sizeof(config), &config, nullptr);
+                check_error(err);
+                if (config == 0) {
+                    clGetDeviceInfo(dev, CL_DEVICE_NAME, sizeof(device_name), device_name, nullptr);
+                    // Uncomment next line if you want to see skipped devices
+                    // fprintf(stderr, "Skipping device %s: no double precision\n", device_name);
+                    continue;
+                }
+            }
+            valid_devices.push_back(dev);
+        }
     }
-    
-    //char driver[1024];
-    //cl_ulong mem_size, alloc_size;
-    //for( int dev=0; dev < m_num_devices; ++dev ) {
-    //    clGetDeviceInfo( m_devices[dev], CL_DEVICE_NAME,               sizeof(device_name), device_name, NULL );
-    //    clGetDeviceInfo( m_devices[dev], CL_DEVICE_GLOBAL_MEM_SIZE,    sizeof(mem_size),    &mem_size,   NULL );
-    //    clGetDeviceInfo( m_devices[dev], CL_DEVICE_MAX_MEM_ALLOC_SIZE, sizeof(alloc_size),  &alloc_size, NULL );
-    //    clGetDeviceInfo( m_devices[dev], CL_DRIVER_VERSION,            sizeof(driver),      driver,      NULL );
-    //    printf( "Device %d: %-16s (memory %3.1f GiB, max allocation %3.1f GiB, driver %s)\n",
-    //            dev, device_name, mem_size/(1024.*1024.*1024.), alloc_size/(1024.*1024.*1024.), driver );
-    //}
-    
-    m_context = clCreateContext( NULL, m_num_devices, m_devices, NULL, NULL, &err );
-    check_error( err );
-    
-    // create map from kernel name -> file name
-    for( int i=0; i < c_kernel_files_len; ++i ) {
-        m_kernel_files[ c_kernel_files[i].name ] = c_kernel_files[i].file;
+
+    m_num_devices = valid_devices.size();
+    if (m_num_devices == 0) {
+        fprintf(stderr, "Error: No suitable OpenCL device found (GPU/accelerator");
+        if (require_double) fprintf(stderr, " with double precision");
+        fprintf(stderr, ").\n");
+        exit(1);
     }
-    
-    // path to search for .co cached OpenCL objects and .cl source code
-    const char* path = getenv( "CLMAGMA_PATH" );
-    if ( path == NULL ) {
-        path = getenv( "LD_LIBRARY_PATH" );
-        if ( path == NULL ) {
+
+    // Copy to fixed-size m_devices array (MAX_DEVICES must be large enough)
+    if (m_num_devices > MAX_DEVICES) {
+        fprintf(stderr, "Warning: Number of devices (%u) exceeds MAX_DEVICES (%d). Using first %d.\n",
+                m_num_devices, MAX_DEVICES, MAX_DEVICES);
+        m_num_devices = MAX_DEVICES;
+    }
+    for (unsigned int i = 0; i < m_num_devices; ++i) {
+        m_devices[i] = valid_devices[i];
+    }
+
+    // ----- 3. Create OpenCL context -----
+    m_context = clCreateContext(nullptr, m_num_devices, m_devices, nullptr, nullptr, &err);
+    check_error(err);
+
+    // ----- 4. Kernel file map and search path (unchanged) -----
+    for (int i = 0; i < c_kernel_files_len; ++i) {
+        m_kernel_files[c_kernel_files[i].name] = c_kernel_files[i].file;
+    }
+
+    const char* path = getenv("CLMAGMA_PATH");
+    if (path == nullptr) {
+        path = getenv("LD_LIBRARY_PATH");
+        if (path == nullptr) {
             path = ".";
         }
     }
@@ -213,6 +233,8 @@ void clmagma_runtime::init( bool require_double )
 }
 
 
+// ------------------------------------------------------------
+/// Initialize clMagma runtime with externally provided devices and context.
 void clmagma_runtime::init(std::vector<cl_device_id> devices, cl_context context, bool require_double)
 {
     char device_name[1024];
@@ -221,51 +243,54 @@ void clmagma_runtime::init(std::vector<cl_device_id> devices, cl_context context
     m_bExternalContext = true;
 
     m_num_devices = devices.size();
-    for (unsigned int i=0;i<m_num_devices;i++)
-    {
+    // Copy devices (up to MAX_DEVICES)
+    if (m_num_devices > MAX_DEVICES) {
+        fprintf(stderr, "Warning: Number of external devices (%zu) exceeds MAX_DEVICES (%d). Using first %d.\n",
+                devices.size(), MAX_DEVICES, MAX_DEVICES);
+        m_num_devices = MAX_DEVICES;
+    }
+    for (unsigned int i = 0; i < m_num_devices; ++i) {
         m_devices[i] = devices[i];
     }
 
-    if ( require_double )
-    {
+    // Optionally filter by double precision (in-place compaction)
+    if (require_double) {
         unsigned int good = 0;
-        for( unsigned int dev=0; dev < m_num_devices; ++dev )
-        {
+        for (unsigned int dev = 0; dev < m_num_devices; ++dev) {
             cl_device_fp_config config;
-            err = clGetDeviceInfo( m_devices[dev], CL_DEVICE_DOUBLE_FP_CONFIG, sizeof(config), &config, NULL );
-            check_error( err );
-            if ( config == 0 )
-            {
-                clGetDeviceInfo( m_devices[dev], CL_DEVICE_NAME, sizeof(device_name), device_name,  NULL );
-                //fprintf( stderr, "skippping device %s: doesn't support double precision\n", device_name );
-            }
-            else
-            {
-                // move good devices up
-                if ( dev != good )
+            err = clGetDeviceInfo(m_devices[dev], CL_DEVICE_DOUBLE_FP_CONFIG, sizeof(config), &config, nullptr);
+            check_error(err);
+            if (config == 0) {
+                clGetDeviceInfo(m_devices[dev], CL_DEVICE_NAME, sizeof(device_name), device_name, nullptr);
+                // fprintf(stderr, "Skipping device %s: doesn't support double precision\n", device_name);
+            } else {
+                if (dev != good) {
                     m_devices[good] = m_devices[dev];
-
+                }
                 ++good;
             }
         }
         m_num_devices = good;
+        if (m_num_devices == 0) {
+            fprintf(stderr, "Error: No external device supports double precision.\n");
+            exit(1);
+        }
     }
 
     m_context = context;
 
-    // create map from kernel name -> file name
-    for( int i=0; i < c_kernel_files_len; ++i )
-    {
-        m_kernel_files[ c_kernel_files[i].name ] = c_kernel_files[i].file;
+    // Kernel file map
+    for (int i = 0; i < c_kernel_files_len; ++i) {
+        m_kernel_files[c_kernel_files[i].name] = c_kernel_files[i].file;
     }
 
-    // path to search for .co cached OpenCL objects and .cl source code
-    const char* path = getenv( "CLMAGMA_PATH" );
-    if ( path == NULL )
-    {
-        path = getenv( "LD_LIBRARY_PATH" );
-        if ( path == NULL )
+    // Search path
+    const char* path = getenv("CLMAGMA_PATH");
+    if (path == nullptr) {
+        path = getenv("LD_LIBRARY_PATH");
+        if (path == nullptr) {
             path = ".";
+        }
     }
     m_path = path;
 }
