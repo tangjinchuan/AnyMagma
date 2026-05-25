@@ -496,7 +496,7 @@ void clmagma_runtime::save_programs(
     //printf( "saving %s\n", filename );
     cl_int err;
     //double start = get_wtime();
-    FILE* file = fopen( filename, "w" );
+    FILE* file = fopen( filename, "wb" );
     if ( file == NULL ) {
         fprintf( stderr, "Can't open file '%s': %s (%d) at %s:%d\n",
                  filename, strerror(errno), errno, __func__, __LINE__ );
@@ -578,7 +578,7 @@ void clmagma_runtime::load_programs(
         //printf( "reading '%s'\n", path_str.c_str() );
         
         // open file
-        FILE* file = fopen( path_str.c_str(), "r" );
+        FILE* file = fopen( path_str.c_str(), "rb" );
         if ( file == NULL ) {
             fprintf( stderr, "Can't open file '%s': %s (%d) at %s:%d\n",
                      path_str.c_str(), strerror(errno), errno, __func__, __LINE__ );
