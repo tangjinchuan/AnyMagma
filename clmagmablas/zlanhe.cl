@@ -435,7 +435,7 @@ zlanhe_inf_kernel_upper(
             }
             // sum diagonal (ignoring imaginary part)
         #if (defined(cl_khr_fp64) || defined(cl_amd_fp64))
-            #if ( defined(PRECISION_c) || defined(PRECISION_s)
+            #if ( defined(PRECISION_c) || defined(PRECISION_s))
                 res += MAGMA_S_ABS( MAGMA_Z_REAL( *A ));
             #else
                 res += MAGMA_D_ABS( MAGMA_Z_REAL( *A ));
@@ -494,7 +494,7 @@ zlanhe_max_kernel_lower(
         }
         // diagonal element (ignoring imaginary part)
     #if (defined(cl_khr_fp64) || defined(cl_amd_fp64))
-        #if ( defined(PRECISION_c) || defined(PRECISION_s)
+        #if ( defined(PRECISION_c) || defined(PRECISION_s))
              res = max_nan( res, MAGMA_S_ABS( MAGMA_Z_REAL( *A )));
         #else
              res = max_nan( res, MAGMA_D_ABS( MAGMA_Z_REAL( *A )));
@@ -529,7 +529,7 @@ zlanhe_max_kernel_upper(
         }
         // diagonal element (ignoring imaginary part)
     #if (defined(cl_khr_fp64) || defined(cl_amd_fp64))
-        #if ( defined(PRECISION_c) || defined(PRECISION_s)
+        #if ( defined(PRECISION_c) || defined(PRECISION_s))
             res = max_nan( res, MAGMA_S_ABS( MAGMA_Z_REAL( *A )));
         #else
             res = max_nan( res, MAGMA_D_ABS( MAGMA_Z_REAL( *A )));
